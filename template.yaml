@@ -1,0 +1,24 @@
+Resources:
+  AxumApiFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: rust-cargolambda  # cargo-lambdaを使用
+    Properties:
+      CodeUri: ./app
+      Handler: bootstrap              # cargo-lambda生成のバイナリ名
+      Runtime: provided.al2023        # カスタムランタイム
+      Architectures:
+        - x86_64
+      FunctionUrlConfig:              # Function URL設定
+        AuthType: NONE
+        Cors:
+          AllowOrigins:
+            - "*"
+          AllowMethods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+          AllowHeaders:
+            - "*"
+          MaxAge: 300
