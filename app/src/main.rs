@@ -1,50 +1,39 @@
-use axum::{
-    extract::Path,
-    routing::get,
-    Json, Router,
-};
+mod domain;
+mod infrastructure;
+
+use axum::{extract::Extension, routing::get, Router};
 use lambda_http::{run, Error};
-use serde::Serialize;
+use serde_json;
+use std::sync::Arc;
+use crate::infrastructure::in_memory_repo::InMemoryRepo;
+use crate::domain::video::usecase::get_video::GetVideoUseCase;
+use crate::domain::video::entity::video_entity::VideoId;
 
-#[derive(Serialize)]
-struct Message {
-    message: String,
+fn router() -> Router {
+    // composition root: 実装をここで生成して注入する
+    let repo = Arc::new(InMemoryRepo::new());
+    Router::new()
+        .route("/", get(root))
+        .route("/demo_videos", get(demo_videos))
+        .layer(Extension(repo))
 }
 
-#[derive(Serialize)]
-struct User {
-    id: String,
-    name: String,
+pub async fn root() -> &'static str {
+    "Hello Axum!"
 }
 
-// GET /
-async fn hello() -> &'static str {
-    "Hello from Rust Lambda!"
-}
-
-// GET /health
-async fn health() -> Json<Message> {
-    Json(Message {
-        message: "OK".to_string(),
-    })
-}
-
-// GET /users/:id
-async fn get_user(Path(id): Path<String>) -> Json<User> {
-    Json(User {
-        id,
-        name: "Sample User".to_string(),
-    })
+async fn demo_videos(
+    Extension(repo): Extension<Arc<InMemoryRepo>>,
+) -> String {
+    let uc = GetVideoUseCase::new(repo.clone());
+    let id = VideoId::new();
+    match uc.execute(&id).await {
+        Ok(v) => serde_json::to_string(&v).unwrap_or_default(),
+        Err(_) => "[]".to_string(),
+    }
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    // ルーター構築
-    let app = Router::new()
-        .route("/", get(hello))
-        .route("/health", get(health))
-        .route("/users/:id", get(get_user));
-
-    // Lambda環境で実行（これだけでLambda化！）
-    run(app).await
+    run(router()).await
 }
