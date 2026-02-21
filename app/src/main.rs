@@ -1,5 +1,4 @@
 // Video関係のLambda関数
-
 mod application;
 mod domain;
 mod infrastructure;
