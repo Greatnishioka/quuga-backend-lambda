@@ -3,12 +3,15 @@ use anyhow::{Result, anyhow};
 use crate::domain::video::repository::video_repository::VideoRepository;
 use crate::domain::video::entity::video_entity::{Video, VideoId};
 
-pub struct GetVideoUseCase<R: VideoRepository> {
-    repo: Arc<R>,
+// pub struct GetVideoUseCase<R: VideoRepository> {
+//     repo: Arc<R>,
+// }
+pub struct GetVideoUseCase {
+    repo: Arc<dyn VideoRepository>,
 }
 
-impl<R: VideoRepository> GetVideoUseCase<R> {
-    pub fn new(repo: Arc<R>) -> Self { Self { repo } }
+impl GetVideoUseCase {
+    pub fn new(repo: Arc<dyn VideoRepository>) -> Self { Self { repo } }
 
     pub async fn execute(&self, id: &VideoId) -> Result<Video> {
         match self.repo.find_by_id(id).await? {
