@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 # Axum Webフレームワーク
-axum = "0.7"
+axum = "0.8"
 
 # Lambda統合
 lambda_http = "0.13"
