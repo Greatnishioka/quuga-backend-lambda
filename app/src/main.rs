@@ -1,11 +1,12 @@
 // Video関係のLambda関数
 
+mod application;
 mod domain;
 mod infrastructure;
 
 use crate::domain::video::entity::video_entity::VideoId;
-use crate::domain::video::usecase::get_video::GetVideoUseCase;
-use crate::infrastructure::in_memory_repo::InMemoryRepo;
+use crate::application::video::usecase::get_video::GetVideoUseCase;
+use crate::infrastructure::persistence::video::in_memory_repo::InMemoryRepo;
 use axum::{extract::Extension, routing::get, Router};
 use lambda_http::{run, Error};
 use serde_json;
